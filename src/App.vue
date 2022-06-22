@@ -1,28 +1,53 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div id="">
+    <User :users="users" @details="getDetails" v-if="!showDetails" />
+    <Details :user="currentUser" @back="goBack" v-else />
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
+import User from "./components/Users.vue";
+import Details from "./components/Details.vue";
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    HelloWorld
-  }
-}
+    User,
+    Details,
+  },
+  data() {
+    return {
+      users: [],
+      showDetails: false,
+      currentUser: {},
+    };
+  },
+
+  methods: {
+    async getUser() {
+      try {
+        let res = await fetch("https://jsonplaceholder.typicode.com/users/");
+        return await res.json();
+      } catch {
+        console.log("unable to get data");
+      }
+    },
+    getDetails(id) {
+      const match = this.users.filter((e) => e.id == id);
+      if (match.length) {
+        this.showDetails = true;
+        this.currentUser = match[0];
+      }
+    },
+    goBack(id) {
+      this.showDetails = false;
+      this.currentUser = null;
+    },
+  },
+
+  async mounted() {
+    this.users = await this.getUser();
+  },
+};
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
+<style></style>
